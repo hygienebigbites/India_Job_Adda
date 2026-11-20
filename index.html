@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#1e3a8a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>IJA Hiring CRM</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#0f172a;--mut:#64748b;--line:#e2e8f0;--pri:#1e3a8a;--pri2:#2563eb;--ok:#16a34a;--bad:#dc2626;--warn:#f59e0b;--wa:#25d366;--org:#f97316}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px}
+input,select,textarea{font:inherit;width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fff}
+label{font-size:12px;color:var(--mut);display:block;margin:10px 0 4px}
+.hide{display:none!important}
+header{position:sticky;top:0;z-index:5;background:var(--pri);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px}
+header b{flex:1;font-size:16px}
+header .u{font-size:12px;opacity:.85}
+header button{background:rgba(255,255,255,.15);color:#fff;padding:6px 10px;font-size:13px}
+main{padding:12px 12px 90px;max-width:900px;margin:auto}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;z-index:6}
+nav button{flex:1;background:none;padding:8px 0 10px;font-size:11px;color:var(--mut);border-radius:0}
+nav button i{display:block;font-style:normal;font-size:20px}
+nav button.on{color:var(--pri2);font-weight:600}
+.card{background:var(--card);border-radius:14px;padding:12px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.stat{background:#fff;border-radius:12px;padding:8px 4px;text-align:center}
+.stat b{display:block;font-size:20px}.stat span{font-size:10px;color:var(--mut)}
+.bar{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:4px}.bar>i{display:block;height:100%;background:var(--ok)}
+.big{width:100%;padding:15px;font-size:17px;font-weight:700;color:#fff;background:var(--pri2);margin-bottom:10px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:6px}
+.chip{white-space:nowrap;padding:7px 12px;border-radius:20px;background:#fff;border:1px solid var(--line);font-size:13px}
+.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.lead{display:flex;gap:10px;align-items:center}
+.lead .main{flex:1;min-width:0}
+.lead .nm{font-weight:700}
+.lead .sub{font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qbtn{width:44px;height:44px;border-radius:50%;font-size:20px;color:#fff;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.call{background:var(--ok)}.wa{background:var(--wa)}
+.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;background:#eef2ff;color:var(--pri);margin:3px 4px 0 0}
+.pill.Hot{background:#fee2e2;color:#b91c1c}.pill.Warm{background:#ffedd5;color:#c2410c}.pill.Cold{background:#e0f2fe;color:#0369a1}
+.pill.due{background:#fef3c7;color:#92400e}.pill.new{background:#dcfce7;color:#166534}
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:640px;max-height:94vh;overflow:auto;border-radius:18px 18px 0 0;padding:14px 14px 30px}
+.sheet h2{margin:0;font-size:20px}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.act{padding:14px;font-size:16px;font-weight:700;color:#fff;text-align:center;text-decoration:none;border-radius:12px;display:block}
+.seg{display:flex;gap:8px;margin:10px 0}
+.seg button{flex:1;padding:14px;font-weight:700;font-size:15px;background:#fff;border:2px solid var(--line)}
+.seg .c.on{border-color:var(--ok);background:#dcfce7}.seg .n.on{border-color:var(--bad);background:#fee2e2}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.opt{padding:12px 8px;background:#fff;border:1.5px solid var(--line);font-size:13px;font-weight:600;text-align:center}
+.opt.pos{border-color:#bbf7d0}.opt.neg{border-color:#fecaca}.opt.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.sec{font-size:12px;font-weight:700;color:var(--mut);margin:12px 0 6px;text-transform:uppercase;letter-spacing:.04em}
+.save{width:100%;padding:15px;background:var(--pri);color:#fff;font-weight:700;font-size:16px;margin-top:10px}
+.hist{font-size:12px;border-left:3px solid var(--line);padding:4px 0 4px 10px;margin:6px 0}
+.hist b{font-size:13px}
+.done{background:#dcfce7;border-radius:14px;padding:14px;text-align:center}
+#toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:10px;z-index:50;font-size:14px;max-width:90%}
+#toast.err{background:var(--bad)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:7px 5px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--mut);font-weight:600}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:10px}
+.kpi{background:#fff;border-radius:12px;padding:10px}.kpi b{font-size:22px;display:block}.kpi span{font-size:11px;color:var(--mut)}
+.hbar{display:flex;align-items:center;gap:8px;font-size:12px;margin:5px 0}
+.hbar span:first-child{width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hbar .b{flex:1;background:var(--line);border-radius:6px;height:14px;overflow:hidden}.hbar .b i{display:block;height:100%;background:var(--pri2)}
+.hbar em{font-style:normal;width:40px;text-align:right;font-weight:700}
+.login{max-width:360px;margin:12vh auto;padding:20px}
+.logo{font-size:28px;font-weight:900;text-align:center;margin-bottom:4px}
+.logo .a{color:var(--org)}.logo .b{color:var(--pri2)}.logo .c{color:var(--ok)}
+.tpl{background:#fff;border-radius:12px;padding:10px;margin-bottom:8px;border:1px solid var(--line)}
+.tpl pre{white-space:pre-wrap;font:inherit;font-size:12px;color:var(--mut);margin:6px 0 0}
+.spin{text-align:center;color:var(--mut);padding:30px}
+.chk{width:20px;height:20px}
+.modecard{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);padding:14px;margin-bottom:10px}
+.modecard b{display:block;font-size:17px;margin-bottom:4px}.modecard span{font-size:13px;color:var(--mut)}
+.modecard.on{border-color:var(--pri2);background:#eff6ff}
+.sessbar{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--pri);background:#e0e7ff;border-radius:10px;padding:6px 8px;margin-bottom:10px;flex-wrap:wrap}
+.sessbar .chip{padding:5px 9px;font-size:12px}
+.cstat{margin-top:10px;padding:10px;border-radius:10px;background:#dcfce7;color:#166534;font-size:14px}
+.cstat.ended{background:#fef3c7;color:#92400e;animation:pulse 1.2s 3}
+@keyframes pulse{50%{transform:scale(1.02)}}
+.cd{margin-top:10px;font-size:15px;color:var(--pri)}.cd b{font-size:22px}
+#syncBadge{font-size:11px;background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:10px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginView" class="login hide">
+  <div class="logo"><span class="a">India</span><span class="b">Job</span><span class="c">Adda</span></div>
+  <p style="text-align:center;color:var(--mut);margin-top:0">Hiring CRM</p>
+  <div class="card">
+    <label>Your name</label><select id="lgName"><option>Loading…</option></select>
+    <label>PIN</label><input id="lgPin" type="password" inputmode="numeric" maxlength="8" placeholder="••••">
+    <button class="save" onclick="doLogin()">Login</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appView" class="hide">
+  <header><b>IJA Hiring CRM</b><span id="syncBadge" class="hide"></span><span class="u" id="hdrUser"></span><button onclick="refresh()">⟳</button><button onclick="logout()">⎋</button></header>
+  <main>
+    <section id="v-queue"></section>
+    <section id="v-search" class="hide">
+      <input id="sq" placeholder="🔎 Search name or phone (min 3 chars)" oninput="debounceSearch()">
+      <div id="sres" style="margin-top:10px"></div>
+    </section>
+    <section id="v-add" class="hide"></section>
+    <section id="v-dash" class="hide"></section>
+    <section id="v-admin" class="hide"></section>
+  </main>
+  <nav id="nav"></nav>
+</div>
+
+<div id="ov" class="overlay hide" onclick="if(event.target===this)closeSheet()"><div class="sheet" id="sheet"></div></div>
+<div id="toast" class="hide"></div>
+
+<script>
+/* ================= CONNECTION TO GOOGLE SHEET =================
+   Your Apps Script "/exec" link. Only change this if you create a NEW deployment
+   (updating with "Manage deployments → New version" keeps the same link). */
+const API_URL='https://script.google.com/macros/s/AKfycbzxYs_xnRNdCgEv3TsKgIGl9IVBmyiWXT23KSVgsiqJW_koa7nUqtAnCLX03i0PeU8rsA/exec';
+/* When opened from Netlify (outside Google), send requests with fetch – no Google cookies,
+   so the multi-account "unable to open the file" error never appears. */
+if(!(window.google&&google.script&&google.script.run)){
+  const makeRun=()=>{let ok=()=>{},fail=()=>{};const p=new Proxy({},{get(t,k){
+    if(k==='withSuccessHandler')return f=>{ok=f;return p};
+    if(k==='withFailureHandler')return f=>{fail=f;return p};
+    return (...args)=>{fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({fn:k,args:args}),redirect:'follow',credentials:'omit'})
+      .then(r=>r.json()).then(j=>j.ok?ok(j.data):fail(new Error(j.error||'Server error')))
+      .catch(()=>fail(new Error('No connection – check internet and try again')))}}});return p};
+  window.google={script:{get run(){return makeRun()}}};
+}
+
+/* ================= STATE ================= */
+const S={auth:null,cfg:null,queue:[],stats:{},bucket:'All',cur:null,focus:false,callStart:0,dispo:{c:null,o:null},done:{},view:'queue',adminSel:new Set()};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+
+function api(fn,...args){return new Promise((res,rej)=>{google.script.run.withSuccessHandler(res).withFailureHandler(e=>{const m=(e&&e.message)||String(e);toast(m,true);if(/log in|Login failed/.test(m))logout();rej(e)})[fn](...args)})}
+let tT;function toast(m,err){const t=$('toast');t.textContent=m;t.className=err?'err':'';clearTimeout(tT);tT=setTimeout(()=>t.className='hide',err?4000:2200)}
+
+const fmt=ms=>{if(!ms)return'';const d=new Date(ms);return d.toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'numeric',minute:'2-digit',hour12:true})};
+const fmtD=ms=>ms?new Date(ms).toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short'}):'';
+const ago=ms=>{if(!ms)return'';const m=Math.round((Date.now()-ms)/60000);if(m<0){const f=-m;return f<60?'in '+f+'m':f<1440?'in '+Math.round(f/60)+'h':'in '+Math.round(f/1440)+'d'}return m<60?m+'m ago':m<1440?Math.round(m/60)+'h ago':Math.round(m/1440)+'d ago'};
+const ymd=d=>{const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
+const localInput=ms=>{const d=new Date(ms);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)};
+const wPhone=p=>{let d=String(p||'').replace(/\D/g,'');if(d.length===10)d='91'+d;return d};
+const tPhone=p=>'+'+wPhone(p);
+
+/* ================= LOGIN ================= */
+window.onload=()=>{
+  const a=store.get('ija_auth');
+  if(a){S.auth=a;boot()}else showLogin();
+};
+function showLogin(){
+  $('appView').classList.add('hide');$('loginView').classList.remove('hide');
+  api('getUserNames').then(n=>{$('lgName').innerHTML=n.map(x=>`<option>${esc(x)}</option>`).join('')});
+}
+function doLogin(){S.auth={name:$('lgName').value,pin:$('lgPin').value.trim()};boot(true)}
+function logout(){store.del('ija_auth');S.auth=null;showLogin()}
+function boot(fresh){
+  api('login',S.auth).then(cfg=>{
+    S.cfg=cfg;store.set('ija_auth',S.auth);
+    $('loginView').classList.add('hide');$('appView').classList.remove('hide');
+    $('hdrUser').textContent=cfg.user.Name+' · '+cfg.user.Role;
+    buildNav();go(cfg.user.Role==='Admin'&&!fresh?S.view:'queue');Q.save();Q.flush();
+  }).catch(()=>showLogin());
+}
+function buildNav(){
+  const tabs=[['queue','📋','My Queue'],['search','🔎','Search'],['add','➕','Add Lead'],['dash','📊','Dashboard']];
+  if(S.cfg.user.Role==='Admin')tabs.push(['admin','🧭','Assign']);
+  $('nav').innerHTML=tabs.map(t=>`<button id="nb-${t[0]}" onclick="go('${t[0]}')"><i>${t[1]}</i>${t[2]}</button>`).join('');
+}
+function go(v){
+  S.view=v;['queue','search','add','dash','admin'].forEach(x=>{$('v-'+x).classList.toggle('hide',x!==v);const b=$('nb-'+x);if(b)b.classList.toggle('on',x===v)});
+  if(v==='queue')loadQueue();if(v==='add')renderAdd();if(v==='dash')renderDashShell();if(v==='admin')loadAdmin();
+  window.scrollTo(0,0);
+}
+function refresh(){api('login',S.auth).then(c=>{S.cfg=c;go(S.view);toast('Refreshed')})}
+
+/* ================= QUEUE ================= */
+function loadQueue(){
+  if(!S.queue.length)$('v-queue').innerHTML='<div class="spin">Loading your leads…</div>';
+  return api('getQueue',S.auth).then(r=>{S.queue=r.leads;S.stats=r.stats;renderQueue()});
+}
+function renderQueue(){
+  const st=S.stats,tgt=S.cfg.settings.DailyCallTarget||0;
+  const cnt=b=>S.queue.filter(l=>b==='All'?l.bucket!=='Upcoming':b==='Visits'?l.visitToday:l.bucket===b).length;
+  const buckets=[['All','Call now'],['Due','Follow-ups'],['New','New'],['Retry','Retry'],['Visits','Visits today'],['Upcoming','Upcoming']];
+  const list=S.queue.filter(l=>S.bucket==='All'?l.bucket!=='Upcoming':S.bucket==='Visits'?l.visitToday:l.bucket===S.bucket);
+  $('v-queue').innerHTML=`
+   <div class="stats">
+     <div class="stat"><b>${st.calls||0}</b><span>Calls${tgt?' / '+tgt:''}</span>${tgt?`<div class="bar"><i style="width:${Math.min(100,(st.calls||0)/tgt*100)}%"></i></div>`:''}</div>
+     <div class="stat"><b>${st.connected||0}</b><span>Connected</span></div>
+     <div class="stat"><b>${st.positive||0}</b><span>Positive</span></div>
+     <div class="stat"><b>${st.won||0}</b><span>${esc(S.cfg.won[0]||'Won')}</span></div>
+   </div>
+   <button class="big" onclick="startCalling()">▶ Start Calling  (${cnt('All')} in queue)</button>${Q.items.length?`<div class="sub" style="text-align:center;margin:-4px 0 8px;color:var(--warn)">⏳ ${Q.items.length} call result(s) waiting to sync</div>`:''}
+   <div class="chips">${buckets.map(b=>`<button class="chip ${S.bucket===b[0]?'on':''}" onclick="S.bucket='${b[0]}';renderQueue()">${b[1]} · ${cnt(b[0])}</button>`).join('')}</div>
+   ${list.length?list.map(leadCard).join(''):`<div class="card spin">No leads here 🎉</div>`}
+   ${S.cfg.settings.AllowSelfPull||S.cfg.user.Role==='Admin'?`<button class="chip" style="width:100%;padding:12px;margin-top:6px" onclick="pullMore()">➕ Get more leads from pool</button>`:''}`;
+}
+function leadCard(l){
+  const tag=l.bucket==='Due'?`<span class="pill due">⏰ ${l.NextActionAt?ago(l.NextActionAt):'Due'}</span>`:l.bucket==='New'?'<span class="pill new">NEW</span>':l.bucket==='Upcoming'?`<span class="pill">🕑 ${fmt(l.NextActionAt)}</span>`:l.bucket==='Retry'?`<span class="pill due">↻ Retry</span>`:'';
+  return `<div class="card lead" onclick="openLead('${l.LeadID}')">
+    <div class="main"><div class="nm">${esc(l.Name||'(no name)')}</div>
+      <div class="sub">${esc([l.JobRole,l.City,l.Source].filter(Boolean).join(' · '))}</div>
+      <div>${tag}${l.Quality?`<span class="pill ${l.Quality}">${l.Quality}</span>`:''}<span class="pill">${esc(l.Stage||'New')}</span>${+l.Attempts?`<span class="pill">📞 ${l.Attempts}</span>`:''}${l.visitToday?'<span class="pill due">🏢 Visit today</span>':''}</div>
+      ${l.LastOutcome?`<div class="sub">Last: ${esc(l.LastOutcome)}</div>`:''}
+    </div>
+    <a class="qbtn call" href="tel:${tPhone(l.Phone)}" onclick="event.stopPropagation();quickCall('${l.LeadID}')">📞</a>
+  </div>`;
+}
+function pullMore(){api('pullLeads',S.auth).then(n=>{toast(n?n+' leads added to your queue':'Pool is empty for your city/language');loadQueue()})}
+function findLead(id){return S.queue.find(l=>l.LeadID===id)||(S.searchRes||[]).find(l=>l.LeadID===id)}
+/* ================= CALLING SESSION (Manual / Auto) =================
+   Phone browsers can open the dialer with the number filled in, but cannot press the green
+   button or detect hang-up. So:
+   • AUTO  : after you tag a call, the NEXT number opens in the dialer by itself (countdown).
+   • MANUAL: you tap "Call next" yourself.
+   • Tag any time (during or after the call). Saving happens in the background, so it never blocks dialing.
+   • Coming back to this screen from the dialer is treated as "call ended" → tagging panel is highlighted. */
+const C={mode:store.get('ija_mode')||'',session:null,dialAt:0,hiddenAt:0,talk:0,left:false,cd:null,cdLeft:0,paused:false,tick:null};
+function nextInQueue(){return S.queue.find(x=>x.bucket!=='Upcoming'&&!S.done[x.LeadID]&&(!S.cur||x.LeadID!==S.cur.LeadID))}
+function startCalling(){
+  if(!nextInQueue()&&!(S.cur&&!S.done[S.cur.LeadID])){autoRefill(true);return}
+  const def=C.mode||'auto';
+  $('ov').classList.remove('hide');
+  $('sheet').innerHTML=`<h2 style="margin-bottom:4px">How do you want to call?</h2>
+   <div class="sub" style="color:var(--mut);margin-bottom:12px">${S.queue.filter(x=>x.bucket!=='Upcoming'&&!S.done[x.LeadID]).length} leads ready</div>
+   <button class="modecard ${def==='auto'?'on':''}" onclick="beginSession('auto')"><b>⚡ Auto dial</b><span>After you tag a call, the next number opens in your dialer in ${S.cfg.settings.AutoDialDelaySec||3} sec. You just press the green call button.</span></button>
+   <button class="modecard ${def==='manual'?'on':''}" onclick="beginSession('manual')"><b>🖐 Manual</b><span>You see the lead first and tap 📞 Call yourself. Good for follow-ups that need preparation.</span></button>
+   <button class="chip" style="width:100%;padding:12px;margin-top:6px" onclick="closeSheet()">Cancel</button>`;
+}
+function beginSession(mode){
+  C.mode=mode;store.set('ija_mode',mode);C.paused=false;
+  C.session={start:Date.now(),calls:0,conn:0,talk:0};
+  S.focus=true;
+  const l=S.queue.find(x=>x.bucket!=='Upcoming'&&!S.done[x.LeadID]);
+  if(!l){autoRefill(true);return}
+  if(mode==='auto')dial(l);else openLead(l.LeadID);   // the tap on the mode card = user gesture, so the dialer is allowed to open
+}
+function endSession(){
+  stopCountdown();const s=C.session;S.focus=false;
+  if(s){toast(`Session done: ${s.calls} calls · ${s.conn} connected · ${Math.round(s.talk/60)} min`)}
+  C.session=null;closeSheet();loadQueue();
+}
+function quickCall(id){const l=findLead(id);if(!l)return;S.cur=l;C.session=C.session||{start:Date.now(),calls:0,conn:0,talk:0};C.dialAt=Date.now();C.talk=0;C.left=false;openLead(id,true)}
+
+/* Open dialer with the number (must run inside a tap). Then show the tagging screen. */
+function dial(l){
+  if(!l)return;
+  stopCountdown();
+  S.cur=l;S.dispo={c:null,o:null};
+  C.dialAt=Date.now();C.talk=0;C.left=false;C.hiddenAt=0;
+  const a=document.createElement('a');a.href='tel:'+tPhone(l.Phone);a.target='_top';document.body.appendChild(a);a.click();a.remove();
+  openLead(l.LeadID,true);
+  setTimeout(()=>{ if(!C.left&&S.cur===l&&C.dialAt){const b=$('dialHint');if(b)b.classList.remove('hide')} },1800); // dialer did not open → show tap-to-call
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden'){ if(C.dialAt){C.hiddenAt=Date.now();C.left=true} if(C.cd)pauseCountdown(true); }
+  else { if(C.hiddenAt){C.talk+=Date.now()-C.hiddenAt;C.hiddenAt=0;
+           const st=$('cstat');if(st&&S.dispo.o==null){st.innerHTML='📴 Call ended? <b>Tag the result below</b>';st.className='cstat ended'}
+           const d=$('dispo');if(d)d.scrollIntoView({behavior:'smooth',block:'start'});}
+         if(C.cd&&C.paused&&C.autoResume){C.autoResume=false;resumeCountdown()} }
+});
+setInterval(()=>{const t=$('ctimer');if(t&&C.dialAt){const s=Math.round((Date.now()-C.dialAt)/1000);t.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}},1000);
+
+/* ================= LEAD SHEET ================= */
+function openLead(id,keepTimer){
+  const l=findLead(id);if(!l)return;
+  S.cur=l;S.dispo={c:null,o:null};if(!keepTimer){C.dialAt=0;C.talk=0;C.left=false}
+  $('ov').classList.remove('hide');renderLead();
+  api('getHistory',S.auth,id).then(h=>{const el=$('hist');if(el)el.innerHTML=h.length?h.map(x=>`<div class="hist"><b>${esc(x.Outcome)}</b> · ${esc(x.Caller)} · ${fmt(x.Timestamp)}${x.Remarks?`<br>${esc(x.Remarks)}`:''}</div>`).join(''):'<div class="sub">No history yet</div>'});
+}
+function closeSheet(){stopCountdown();$('ov').classList.add('hide');S.focus=false;if(S.view==='queue')renderQueue()}
+function renderLead(){
+  const l=S.cur,s=C.session,inSession=S.focus&&s;
+  $('sheet').innerHTML=`
+   ${inSession?`<div class="sessbar"><span id="sessTxt">${sessText()}</span>
+      <span><button class="chip" onclick="switchMode()">${C.mode==='auto'?'Switch to manual':'Switch to auto'}</button> <button class="chip" onclick="endSession()">■ End</button></span></div>`:''}
+   <div style="display:flex;justify-content:space-between;align-items:start">
+     <div><h2>${esc(l.Name||'(no name)')}</h2><div class="sub" style="color:var(--mut)">${esc(l.Phone)} · ${esc([l.JobRole,l.City].filter(Boolean).join(' · '))}</div></div>
+     ${inSession?'':`<button class="chip" onclick="closeSheet()">✕</button>`}</div>
+   <div>${l.Quality?`<span class="pill ${l.Quality}">${l.Quality}</span>`:''}<span class="pill">${esc(l.Stage||'New')}</span><span class="pill">📞 ${l.Attempts||0} attempts</span>${l.Source?`<span class="pill">${esc(l.Source)}</span>`:''}${l.Language?`<span class="pill">🗣 ${esc(l.Language)}</span>`:''}${l.Experience?`<span class="pill">💼 ${esc(l.Experience)}</span>`:''}${l.Education?`<span class="pill">🎓 ${esc(l.Education)}</span>`:''}${l.ProfilePct?`<span class="pill">Profile ${esc(l.ProfilePct)}%</span>`:''}</div>
+   ${l.HomeLocation?`<div class="sub" style="margin-top:6px">🏠 From: ${esc(l.HomeLocation)}</div>`:''}
+   ${l.LastOutcome?`<div class="sub" style="margin-top:4px">↩ Last: ${esc(l.LastOutcome)}${l.LastCallAt?' · '+ago(l.LastCallAt):''}</div>`:''}
+   ${l.VisitDate?`<div class="sub" style="margin-top:6px">🏢 Interview: <b>${fmt(l.VisitDate)}</b></div>`:''}
+   ${l.JoinDate?`<div class="sub">🗓 Joining: <b>${fmtD(l.JoinDate)}</b></div>`:''}
+   ${l.Remarks?`<div class="sub" style="margin-top:4px">📝 ${esc(l.Remarks)}</div>`:''}
+   ${C.dialAt?`<div id="cstat" class="cstat">📞 Calling… <b id="ctimer">00:00</b> <span class="sub">– tag any time</span></div>`:''}
+   <div id="dialHint" class="hide cstat ended">Dialer didn't open? Tap 📞 Call below.</div>
+   <div class="row" style="margin-top:10px">
+     <a class="act call" href="tel:${tPhone(l.Phone)}" onclick="C.dialAt=C.dialAt||Date.now();C.left=false;setTimeout(renderStatus,50)">📞 ${C.dialAt?'Redial':'Call'}</a>
+     <a class="act wa" href="#" onclick="event.preventDefault();openTpl()">💬 WhatsApp</a>
+   </div>
+   <div id="dispo"></div>
+   <div class="sec">History</div><div id="hist"><div class="sub">Loading…</div></div>
+   ${inSession?`<button class="chip" style="width:100%;padding:12px;margin-top:10px" onclick="skipLead()">Skip this lead →</button>`:''}`;
+  renderDispo();
+}
+function sessText(){const s=C.session||{calls:0,conn:0};return `${C.mode==='auto'?'⚡ Auto':'🖐 Manual'} · ${s.calls} calls · ${s.conn} conn`}
+function renderStatus(){if(!$('cstat')){const d=$('dispo');if(d)d.insertAdjacentHTML('beforebegin',`<div id="cstat" class="cstat">📞 Calling… <b id="ctimer">00:00</b> <span class="sub">– tag any time</span></div>`)}}
+function switchMode(){
+  stopCountdown();C.mode=C.mode==='auto'?'manual':'auto';store.set('ija_mode',C.mode);toast(C.mode==='auto'?'⚡ Auto dial ON':'🖐 Manual mode');
+  if(S.cur&&S.done[S.cur.LeadID]){const nx=nextInQueue();if(nx)openLead(nx.LeadID);else autoRefill(false)}  // already tagged → show next lead (no auto dial without a tap)
+  else renderLead();
+}
+function renderDispo(){
+  const d=S.dispo,O=S.cfg.outcomes;
+  const opt=o=>`<button class="opt ${o.g||''} ${d.o===o.o?'on':''}" onclick="pickOutcome('${o.o.replace(/'/g,"\\'")}')">${esc(o.o)}</button>`;
+  let h=`<div class="sec">How did the call go?</div>
+   <div class="seg"><button class="c ${d.c===true?'on':''}" onclick="S.dispo={c:true,o:null};renderDispo()">✅ Connected</button>
+   <button class="n ${d.c===false?'on':''}" onclick="S.dispo={c:false,o:null};renderDispo()">❌ Not connected</button></div>`;
+  if(d.c===false){h+=`<div class="sub" style="color:var(--mut);margin-bottom:6px">One tap saves${S.focus&&C.mode==='auto'?' & dials next':''} · auto-retry is scheduled</div><div class="grid">${O.filter(o=>o.g==='nc').map(opt).join('')}</div>`}
+  if(d.c===true){
+    h+=`<div class="sec">👍 Positive</div><div class="grid">${O.filter(o=>o.c&&o.g==='pos').map(opt).join('')}</div>
+        <div class="sec">👎 Negative</div><div class="grid">${O.filter(o=>o.c&&o.g==='neg').map(opt).join('')}</div>`;
+    if(d.o){
+      const oc=O.find(x=>x.o===d.o);
+      if(oc.need==='visit'){const t=new Date();t.setDate(t.getDate()+1);t.setHours(11,0,0,0);h+=`<label>Interview date & time *</label><input type="datetime-local" id="dVisit" value="${localInput(t)}">`}
+      if(oc.need==='join'){const t=new Date();t.setDate(t.getDate()+2);h+=`<label>Joining date *</label><input type="date" id="dJoin" value="${ymd(t)}">`}
+      if(oc.need==='next'){const t=new Date(Date.now()+(oc.h||24)*3600e3);h+=`<label>Next follow-up</label><input type="datetime-local" id="dNext" value="${localInput(t)}">
+        <div class="chips" style="margin-top:6px">${[['1h',1],['3h',3],['Tomorrow',24],['2 days',48]].map(q=>`<button class="chip" onclick="$('dNext').value=localInput(Date.now()+${q[1]}*3600e3)">${q[0]}</button>`).join('')}</div>`}
+      h+=`<label>Remarks (optional)</label><textarea id="dRem" rows="2" placeholder="e.g. expects 15k, has bike"></textarea>
+          <button class="save" onclick="saveDispo()">💾 Save${S.focus?(C.mode==='auto'?' & dial next':' & continue'):''}</button>`;
+    }
+  }
+  $('dispo').innerHTML=h;
+}
+function pickOutcome(o){
+  S.dispo.o=o;const oc=S.cfg.outcomes.find(x=>x.o===o);
+  if(!oc.c)return saveDispo();renderDispo();
+}
+
+/* Save = instant on screen; the server write runs in a background queue (survives bad network). */
+function saveDispo(){
+  const l=S.cur,d=S.dispo,oc=S.cfg.outcomes.find(x=>x.o===d.o);if(!oc)return;
+  const v=id=>$(id)&&$(id).value;
+  const talk=C.talk+(C.hiddenAt?Date.now()-C.hiddenAt:0);
+  const p={leadId:l.LeadID,outcome:d.o,remarks:v('dRem')||'',at:Date.now(),ref:l.LeadID+'-'+Date.now(),
+    secs:talk?Math.min(3600,Math.round(talk/1000)):(C.dialAt?Math.min(3600,Math.round((Date.now()-C.dialAt)/1000)):'')};
+  if(v('dVisit'))p.visitAt=new Date(v('dVisit')).getTime();
+  if(v('dJoin'))p.joinAt=new Date(v('dJoin')+'T10:00').getTime();
+  if(v('dNext'))p.nextAt=new Date(v('dNext')).getTime();
+  if(oc.need==='visit'&&!p.visitAt)return toast('Select interview date & time',true);
+  if(oc.need==='join'&&!p.joinAt)return toast('Select joining date',true);
+  // optimistic local update
+  Object.assign(l,{LastOutcome:oc.o,Attempts:(+l.Attempts||0)+1,LastCallAt:p.at,VisitDate:p.visitAt||l.VisitDate,JoinDate:p.joinAt||l.JoinDate,NextActionAt:p.nextAt||l.NextActionAt});
+  if(oc.stage)l.Stage=oc.stage;
+  S.done[l.LeadID]=1;
+  const i=S.queue.findIndex(x=>x.LeadID===l.LeadID);if(i>=0)S.queue[i].bucket='Upcoming';
+  if(C.session){C.session.calls++;if(oc.c)C.session.conn++;C.session.talk+=(+p.secs||0)}
+  S.stats.calls=(S.stats.calls||0)+1;if(oc.c)S.stats.connected=(S.stats.connected||0)+1;
+  Q.push(p);
+  C.dialAt=0;C.talk=0;C.left=false;C.hiddenAt=0;
+  afterSave(l,oc);
+  if(C.session&&C.session.calls%5===0)refreshQueueSilently();
+}
+function afterSave(l,oc){
+  const st=$('cstat');if(st){st.className='cstat';st.innerHTML='✅ Tagged · '+esc(oc.o)}
+  const hint=$('dialHint');if(hint)hint.classList.add('hide');
+  const sb=$('sessTxt');if(sb)sb.textContent=sessText();
+  const tpl=oc.tpl&&S.cfg.templates.find(t=>t.key===oc.tpl);
+  const nx=nextInQueue();
+  const waBtn=tpl?`<a class="act wa" style="margin-top:10px" href="${waLink(l,tpl.key)}" target="_blank" onclick="logWA('${tpl.key}','${l.LeadID}');pauseCountdown(false)">💬 Send "${esc(tpl.title)}"</a>`:'';
+  if(!S.focus){$('dispo').innerHTML=`<div class="done"><div style="font-size:30px">✅</div><b>${esc(oc.o)}</b>${waBtn}<button class="save" style="background:var(--pri2)" onclick="closeSheet()">Done</button></div>`;return}
+  const nextInfo=nx?`<div class="sub" style="margin-top:8px">Next: <b>${esc(nx.Name||nx.Phone)}</b> · ${esc([nx.JobRole,nx.City].filter(Boolean).join(' · '))}${nx.bucket==='Due'?' · ⏰ follow-up':nx.bucket==='New'?' · 🆕':''}</div>`:'<div class="sub" style="margin-top:8px">Queue finished – will fetch more leads</div>';
+  $('dispo').innerHTML=`<div class="done"><div style="font-size:28px">✅</div><b>${esc(oc.o)}</b>${nextInfo}
+    ${C.mode==='auto'&&nx?`<div class="cd" id="cdBox">Dialing next in <b id="cdN">${S.cfg.settings.AutoDialDelaySec||3}</b>s</div>`:''}
+    <button class="save" style="background:var(--ok)" onclick="callNext()">📞 ${nx?'Call next now':'Get more leads'}</button>
+    ${waBtn}
+    ${C.mode==='auto'&&nx?`<button class="chip" style="width:100%;padding:10px;margin-top:8px" id="cdPause" onclick="pauseCountdown(false)">⏸ Pause auto-dial</button>`:''}
+  </div>`;
+  if(C.mode==='auto'&&nx)startCountdown();
+  window.scrollTo(0,0);$('sheet').scrollTop=0;
+}
+function startCountdown(){
+  stopCountdown();C.paused=false;C.cdLeft=+S.cfg.settings.AutoDialDelaySec||3;
+  C.cd=setInterval(()=>{ if(C.paused)return; C.cdLeft--; const n=$('cdN'); if(n)n.textContent=C.cdLeft;
+    if(C.cdLeft<=0){stopCountdown();callNext()} },1000);
+}
+function stopCountdown(){if(C.cd)clearInterval(C.cd);C.cd=null}
+function pauseCountdown(auto){if(!C.cd)return;C.paused=true;C.autoResume=!!auto;const b=$('cdBox');if(b)b.innerHTML='<span style="font-size:14px">⏸ Auto-dial paused – tap “Call next now” when ready</span>';const p=$('cdPause');if(p)p.remove()}
+function resumeCountdown(){C.paused=false;C.cdLeft=+S.cfg.settings.AutoDialDelaySec||3;const b=$('cdBox');if(b)b.innerHTML=`Dialing next in <b id="cdN">${C.cdLeft}</b>s`}
+function callNext(){
+  stopCountdown();const nx=nextInQueue();
+  if(!nx){autoRefill(false);return}
+  if(C.mode==='auto')dial(nx);else openLead(nx.LeadID);
+}
+function skipLead(){S.done[S.cur.LeadID]=1;callNextManualSafe()}
+function callNextManualSafe(){const nx=nextInQueue();if(!nx){autoRefill(false);return}openLead(nx.LeadID)} // skipping never auto-dials
+function autoRefill(fromStart){
+  api('pullLeads',S.auth).then(n=>loadQueue().then(()=>{
+    if(n&&nextInQueue()){toast(n+' new leads added');if(S.focus)openLead(nextInQueue().LeadID);else if(fromStart)startCalling()}
+    else{toast('🎉 Queue finished – no more leads right now');if(S.focus)endSession()}
+  })).catch(()=>{toast('🎉 Queue finished');if(S.focus)endSession()});
+}
+function refreshQueueSilently(){google.script.run.withSuccessHandler(r=>{S.queue=r.leads.filter(x=>!S.done[x.LeadID]||x.bucket==='Upcoming').concat([]);S.stats=Object.assign(S.stats,r.stats);
+  S.queue.forEach(x=>{if(S.done[x.LeadID])x.bucket='Upcoming'})}).withFailureHandler(()=>{}).getQueue(S.auth)}
+
+/* ---------- Background save queue (offline-safe, no duplicates) ---------- */
+const Q={items:store.get('ija_pending')||[],busy:false,
+  push(p){this.items.push(p);this.save();this.flush()},
+  save(){store.set('ija_pending',this.items);const b=$('syncBadge');if(b){b.textContent=this.items.length?'⏳ '+this.items.length+' saving':'';b.classList.toggle('hide',!this.items.length)}},
+  flush(){
+    if(this.busy||!this.items.length||!S.auth)return;this.busy=true;const p=this.items[0];
+    google.script.run.withSuccessHandler(r=>{this.items.shift();this.busy=false;this.save();
+        if(r&&r.lead){const q=S.queue.find(x=>x.LeadID===r.lead.LeadID);if(q){Object.assign(q,r.lead);q.bucket='Upcoming'}}
+        if(r&&r.stats&&!this.items.length)S.stats=r.stats;this.flush()})
+      .withFailureHandler(e=>{this.busy=false;const m=(e&&e.message)||'';p.tries=(p.tries||0)+1;
+        if(/not found|Pick an outcome|Select/.test(m)||p.tries>5){this.items.shift();toast('Could not save '+p.outcome+': '+m,true)}
+        this.save();setTimeout(()=>this.flush(),8000)})
+      .saveDisposition(S.auth,p);
+  }};
+setInterval(()=>Q.flush(),15000);
+
+/* ================= WHATSAPP ================= */
+function fillTpl(msg,l){
+  const st=S.cfg.settings,u=S.cfg.user;
+  const first=String(l.Name||'').split(' ')[0]||'';
+  const m={name:first,role:l.JobRole||'job',city:l.City||'',caller:u.Name,callerPhone:u.Phone||'',company:st.CompanyName||'',address:st.OfficeAddress||'',map:st.MapLink||'',
+    visit:l.VisitDate?fmt(l.VisitDate):'',join:l.JoinDate?fmtD(l.JoinDate):'',next:l.NextActionAt?fmt(l.NextActionAt):''};
+  return msg.replace(/\{(\w+)\}/g,(a,k)=>k in m?m[k]:a);
+}
+function waLink(l,key){const t=S.cfg.templates.find(x=>x.key===key);return 'https://wa.me/'+wPhone(l.Phone)+'?text='+encodeURIComponent(fillTpl(t?t.msg:'',l))}
+function logWA(key,id){api('logWhatsApp',S.auth,id||S.cur.LeadID,key)}
+function suggestKey(l){const st=S.cfg.stages.find(x=>x.name===(l.Stage||'New'));return (st&&st.tpl)||'INTRO'}
+function openTpl(){
+  const l=S.cur,sug=suggestKey(l);
+  const list=[...S.cfg.templates].sort((a,b)=>(b.key===sug)-(a.key===sug));
+  $('dispo').innerHTML=`<div class="sec">Choose message <button class="chip" style="float:right" onclick="renderDispo()">✕</button></div>`+list.map(t=>`
+    <div class="tpl"><div style="display:flex;justify-content:space-between;align-items:center"><b>${esc(t.title)}${t.key===sug?' ⭐':''}</b>
+    <a class="chip" style="background:var(--wa);color:#fff;border:0;text-decoration:none" href="${waLink(l,t.key)}" target="_blank" onclick="logWA('${t.key}')">Send</a></div>
+    <pre>${esc(fillTpl(t.msg,l))}</pre></div>`).join('');
+}
+
+/* ================= SEARCH ================= */
+let sT;function debounceSearch(){clearTimeout(sT);sT=setTimeout(()=>{const q=$('sq').value;if(q.length<3){$('sres').innerHTML='';return}
+  api('searchLeads',S.auth,q).then(r=>{S.searchRes=r;$('sres').innerHTML=r.length?r.map(l=>leadCard(l)+(l.AssignedTo&&l.AssignedTo!==S.cfg.user.Name?`<div class="sub" style="margin:-8px 0 10px 12px;color:var(--mut)">Owner: ${esc(l.AssignedTo)}</div>`:'')).join(''):'<div class="card spin">No match</div>'})},350)}
+
+/* ================= ADD LEAD ================= */
+function renderAdd(){
+  const c=S.cfg,isA=c.user.Role==='Admin';
+  const sel=(id,list)=>`<select id="${id}"><option value="">— Select —</option>${(c.lists[list]||[]).map(x=>`<option>${esc(x)}</option>`).join('')}</select>`;
+  $('v-add').innerHTML=`<div class="card"><h3 style="margin:0 0 4px">Add a lead</h3><div class="sub" style="color:var(--mut)">Duplicate numbers are blocked automatically. Chatbot leads come in automatically. For other bulk lists use the CRM_Import tab in the Google Sheet. Drop-down values are edited in the CRM_Lists tab.</div>
+   <label>Mobile number *</label><input id="aPhone" inputmode="numeric" maxlength="14" placeholder="10-digit mobile">
+   <label>Name</label><input id="aName">
+   <div class="row"><div><label>Job role</label>${sel('aRole','JobRole')}</div><div><label>Preferred city</label>${sel('aCity','City')}</div></div>
+   <div class="row"><div><label>Source</label>${sel('aSrc','Source')}</div><div><label>Experience</label>${sel('aExp','Experience')}</div></div>
+   <div class="row"><div><label>Education</label>${sel('aEdu','Education')}</div><div><label>Language</label>${sel('aLang','Language')}</div></div>
+   <div class="row"><div><label>Quality</label><select id="aQ"><option value="">Auto</option>${(c.lists.Quality||['Hot','Warm','Cold']).map(x=>`<option>${esc(x)}</option>`).join('')}</select></div><div></div></div>
+   ${isA?`<label>Assign to</label><select id="aTo"><option value="">— Pool (auto-assign) —</option>${c.callers.map(x=>`<option>${esc(x)}</option>`).join('')}</select>`:''}
+   <label>Remarks</label><input id="aRem">
+   <button class="save" onclick="saveLead()">Save lead</button></div>
+`;
+}
+function saveLead(){
+  const g=id=>($(id)||{}).value||'';
+  const L={Phone:g('aPhone'),Name:g('aName'),JobRole:g('aRole'),City:g('aCity'),Source:g('aSrc'),Experience:g('aExp'),Education:g('aEdu'),Language:g('aLang'),Quality:g('aQ'),AssignedTo:g('aTo'),Remarks:g('aRem')};
+  api('addLead',S.auth,L).then(r=>{
+    if(r.dup){toast('Already exists: '+(r.lead.Name||r.lead.Phone)+' · owner '+(r.lead.AssignedTo||'pool'),true);return}
+    toast('Lead added ✅');renderAdd();S.queue=[];
+  });
+}
+
+/* ================= DASHBOARD ================= */
+function renderDashShell(){
+  const c=S.cfg,isA=c.user.Role==='Admin',t=ymd(Date.now());
+  $('v-dash').innerHTML=`<div class="card">
+    <div class="chips">${[['Today',0,0],['Yesterday',1,1],['7 days',6,0],['30 days',29,0]].map(q=>`<button class="chip" onclick="setRange(${q[1]},${q[2]})">${q[0]}</button>`).join('')}</div>
+    <div class="row"><div><label>From</label><input type="date" id="fFrom" value="${t}"></div><div><label>To</label><input type="date" id="fTo" value="${t}"></div></div>
+    <div class="row">${isA?`<div><label>Caller</label><select id="fCaller"><option value="">All callers</option>${c.callers.map(x=>`<option>${esc(x)}</option>`).join('')}</select></div>`:''}
+      <div><label>Source</label><select id="fSrc"><option value="">All</option>${c.sources.map(x=>`<option>${esc(x)}</option>`).join('')}</select></div>
+      <div><label>City</label><select id="fCity"><option value="">All</option>${c.cities.map(x=>`<option>${esc(x)}</option>`).join('')}</select></div></div>
+    <button class="save" onclick="loadDash()">Apply filters</button>
+    ${isA?`<button class="chip" style="width:100%;padding:10px;margin-top:8px" onclick="doExport()">⬇ Export matching leads to Sheet</button>`:''}
+  </div><div id="dashBody"><div class="spin">Loading…</div></div>`;
+  loadDash();
+}
+function setRange(back,end){const d=n=>ymd(Date.now()-n*864e5);$('fFrom').value=d(back);$('fTo').value=d(end);loadDash()}
+function filters(){return{from:$('fFrom').value,to:$('fTo').value,caller:($('fCaller')||{}).value||'',source:$('fSrc').value,city:$('fCity').value}}
+function doExport(){api('exportLeads',S.auth,filters()).then(r=>{toast(r.count+' leads exported');window.open(r.url,'_blank')})}
+function hbars(obj,filterFn){const e=Object.entries(obj).filter(filterFn||(()=>true)).sort((a,b)=>b[1]-a[1]);const mx=Math.max(1,...e.map(x=>x[1]));
+  return e.length?e.map(([k,v])=>`<div class="hbar"><span>${esc(k)}</span><div class="b"><i style="width:${v/mx*100}%"></i></div><em>${v}</em></div>`).join(''):'<div class="sub" style="color:var(--mut)">No data</div>'}
+function loadDash(){
+  $('dashBody').innerHTML='<div class="spin">Loading…</div>';
+  api('getReport',S.auth,filters()).then(r=>{
+    const k=r.kpi,pct=(a,b)=>b?Math.round(a/b*100)+'%':'–',FS=r.funnelStages,isA=S.cfg.user.Role==='Admin';
+    const O=S.cfg.outcomes,ncSet=new Set(O.filter(o=>o.g==='nc').map(o=>o.o)),negSet=new Set(O.filter(o=>o.g==='neg').map(o=>o.o));
+    const tbl=(obj,title)=>{const rows=Object.entries(obj);return `<div class="card"><div class="sec">${title}</div><div style="overflow-x:auto"><table><tr><th></th><th>Dials</th><th>Conn</th><th>%</th>${FS.map(f=>`<th>${esc(f)}</th>`).join('')}<th>WA</th></tr>
+      ${rows.length?rows.sort((a,b)=>b[1].dials-a[1].dials).map(([n,x])=>`<tr><td>${esc(n)}</td><td>${x.dials}</td><td>${x.conn}</td><td>${pct(x.conn,x.dials)}</td>${FS.map(f=>`<td>${x.st[f]||0}</td>`).join('')}<td>${x.wa}</td></tr>`).join(''):`<tr><td colspan="${FS.length+5}">No activity</td></tr>`}</table></div></div>`};
+    const days=Object.keys(r.daily).sort(),mx=Math.max(1,...days.map(d=>r.daily[d].dials));
+    const wonSet=new Set(S.cfg.won);
+    $('dashBody').innerHTML=`
+     <div class="kpis">
+       <div class="kpi"><b>${k.dials}</b><span>Total dials</span></div>
+       <div class="kpi"><b>${k.uniqueDialed}</b><span>Unique leads dialed</span></div>
+       <div class="kpi"><b>${k.connected}</b><span>Connected · ${pct(k.connected,k.dials)}</span></div>
+       ${FS.map(f=>`<div class="kpi"><b ${wonSet.has(f)?'style="color:var(--ok)"':''}>${r.funnel[f]||0}</b><span>${esc(f)}</span></div>`).join('')}
+       <div class="kpi"><b>${k.wa}</b><span>WhatsApps sent</span></div>
+       <div class="kpi"><b>${r.newLeads}</b><span>New leads in period</span></div>
+       <div class="kpi"><b style="color:var(--warn)">${r.dueNow}</b><span>Follow-ups due now</span></div>
+       ${isA?`<div class="kpi"><b style="color:var(--bad)">${r.unassigned}</b><span>Unassigned leads</span></div>`:''}
+       <div class="kpi"><b>${k.talkSecs?Math.round(k.talkSecs/60):0}</b><span>Approx. talk mins</span></div>
+     </div>
+     <div class="card"><div class="sec">Conversion funnel (period)</div>${hbars(r.funnel)}</div>
+     <div class="card"><div class="sec">New lead quality (period)</div>${hbars(r.quality)}</div>
+     <div class="card"><div class="sec">❌ Not connected – breakup</div>${hbars(r.outcomes,e=>ncSet.has(e[0]))}</div>
+     <div class="card"><div class="sec">✅ Connected – outcome breakup</div>${hbars(r.outcomes,e=>!ncSet.has(e[0])&&!negSet.has(e[0]))}</div>
+     <div class="card"><div class="sec">👎 Drop reasons</div>${hbars(r.outcomes,e=>negSet.has(e[0]))}</div>
+     ${tbl(r.byCaller,'Caller performance')}
+     ${tbl(r.bySource,'Source performance')}
+     <div class="card"><div class="sec">Daily trend (dials · connected · ${esc(S.cfg.won[0]||'won')})</div>${days.length?days.map(d=>`<div class="hbar"><span>${d.slice(5)}</span><div class="b"><i style="width:${r.daily[d].dials/mx*100}%"></i></div><em style="width:70px">${r.daily[d].dials}·${r.daily[d].conn}·${r.daily[d].won}</em></div>`).join(''):'<div class="sub">No data</div>'}</div>
+     <div class="card"><div class="sec">Live pipeline (current stage)</div>${hbars(r.pipeline,e=>e[1]>0)}</div>`;
+  });
+}
+
+/* ================= ADMIN: ASSIGN ================= */
+function loadAdmin(){
+  const c=S.cfg;
+  if(!$('adF')){$('v-admin').innerHTML=`
+    <div id="adTop"><div class="spin">Loading…</div></div>
+    <div class="card" id="adF"><div class="sec">Manual assignment</div>
+      <div class="row"><div><label>Show</label><select id="aShow"><option value="UNASSIGNED">Unassigned (pool)</option><option value="ALL">All open</option>${c.callers.map(x=>`<option>${esc(x)}</option>`).join('')}</select></div>
+      <div><label>Stage</label><select id="aStage"><option value="">All open</option>${c.stages.map(x=>`<option>${esc(x.name)}</option>`).join('')}</select></div></div>
+      <div class="row"><div><label>City</label><select id="aCityF"><option value="">All</option>${c.cities.map(x=>`<option>${esc(x)}</option>`).join('')}</select></div>
+      <div><label>Source</label><select id="aSrcF"><option value="">All</option>${c.sources.map(x=>`<option>${esc(x)}</option>`).join('')}</select></div>
+      <div><label>Quality</label><select id="aQF"><option value="">All</option>${(c.lists.Quality||['Hot','Warm','Cold']).map(x=>`<option>${esc(x)}</option>`).join('')}</select></div></div>
+      <button class="save" onclick="loadAdmin()">Show leads</button></div>
+    <div id="adList"></div>`}
+  const f={assigned:$('aShow').value,stage:$('aStage').value,city:$('aCityF').value,source:$('aSrcF').value,quality:$('aQF').value};
+  S.adminSel=new Set();
+  api('adminData',S.auth,f).then(r=>{
+    S.admin=r;
+    $('adTop').innerHTML=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><div><div class="sec" style="margin:0">Lead pool</div><b style="font-size:28px">${r.pool.total}</b> <span class="sub">unassigned</span></div>
+      <button class="chip on" style="padding:12px" onclick="doAuto()">⚡ Auto-assign</button></div>
+      <div class="sub" style="color:var(--mut);margin:6px 0">${Object.entries(r.pool.byCity).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v])=>esc(k)+': '+v).join(' · ')||'—'}</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><button class="chip" style="flex:1" onclick="doSync()">🔄 Sync chatbot leads now</button><span class="sub" style="color:var(--mut);font-size:11px">Last: ${r.lastSync?fmt(new Date(r.lastSync).getTime()):'never'}</span></div>
+      <div style="display:flex;gap:8px;align-items:center"><input id="stDays" type="number" value="2" min="1" style="flex:0 0 64px"><button class="chip" style="flex:1;white-space:normal" onclick="doReclaim()">♻ Return leads untouched for these many days to pool</button></div></div>
+     <div class="card"><div class="sec">Caller load</div><table><tr><th>Caller</th><th>Open</th><th>Due now</th><th>New today</th><th>Daily cap</th></tr>
+      ${r.callers.map(x=>`<tr><td>${esc(x.name)}<div class="sub" style="color:var(--mut)">${esc(x.cities)}</div></td><td>${x.open}</td><td>${x.due}</td><td>${x.newToday}</td><td>${x.cap}</td></tr>`).join('')}</table></div>`;
+    renderAdminList();
+  });
+}
+function renderAdminList(){
+  const r=S.admin,c=S.cfg;
+  $('adList').innerHTML=`<div class="card" style="position:sticky;top:52px;z-index:3">
+     <div class="row" style="align-items:center"><label style="margin:0;display:flex;gap:6px;align-items:center;flex:0 0 auto"><input type="checkbox" class="chk" onchange="selAll(this.checked)"> All (${r.list.length})</label>
+     <select id="aTarget"><option value="">— Unassign (to pool) —</option>${c.callers.map(x=>`<option>${esc(x)}</option>`).join('')}</select>
+     <button class="chip on" onclick="doAssign()">Assign <span id="selN">0</span></button></div></div>
+   ${r.list.map(l=>`<div class="card lead"><input type="checkbox" class="chk" data-id="${l.LeadID}" onchange="selOne(this)">
+     <div class="main"><div class="nm">${esc(l.Name||l.Phone)}</div><div class="sub">${esc([l.JobRole,l.City,l.Source].filter(Boolean).join(' · '))} · ${ago(l.CreatedAt)}</div>
+     <div>${l.Quality?`<span class="pill ${l.Quality}">${l.Quality}</span>`:''}<span class="pill">${esc(l.Stage||'New')}</span><span class="pill">👤 ${esc(l.AssignedTo||'Pool')}</span>${l.ProfilePct?`<span class="pill">${esc(l.ProfilePct)}%</span>`:''}</div></div></div>`).join('')||'<div class="card spin">No leads</div>'}`;
+}
+function selOne(cb){cb.checked?S.adminSel.add(cb.dataset.id):S.adminSel.delete(cb.dataset.id);$('selN').textContent=S.adminSel.size}
+function selAll(on){document.querySelectorAll('#adList .chk[data-id]').forEach(cb=>{cb.checked=on;selOne(cb)})}
+function doAssign(){if(!S.adminSel.size)return toast('Select leads first',true);const to=$('aTarget').value;
+  api('assignLeads',S.auth,[...S.adminSel],to).then(n=>{toast(n+' leads '+(to?'assigned to '+to:'moved to pool'));loadAdmin()})}
+function doSync(){toast('Syncing…');api('syncNow',S.auth).then(r=>{toast(`Sync: ${r.added} new, ${r.updated} updated`);loadAdmin()})}
+function doAuto(){api('autoAssign',S.auth).then(n=>{toast(n+' leads auto-assigned');loadAdmin()})}
+function doReclaim(){api('reclaimStale',S.auth,$('stDays').value).then(n=>{toast(n+' stale leads returned to pool');loadAdmin()})}
+
+/* When caller returns from the phone app, bring the disposition into view */
+</script>
+</body>
+</html>
