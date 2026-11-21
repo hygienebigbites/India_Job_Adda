@@ -78,6 +78,33 @@ th{color:var(--mut);font-weight:600}
 .tpl pre{white-space:pre-wrap;font:inherit;font-size:12px;color:var(--mut);margin:6px 0 0}
 .spin{text-align:center;color:var(--mut);padding:30px}
 .chk{width:20px;height:20px}
+/* call panel – compact one-screen tagging */
+.lhead{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.lphone{font-size:15px;color:var(--mut);font-weight:600;letter-spacing:.3px}
+.ltags{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:2px}.ltags .pill{margin:0}
+.xbtn{padding:4px 10px;margin-left:4px}
+.lfacts{font-size:12.5px;color:var(--mut);margin-top:6px;line-height:1.5}
+.lnote{font-size:12.5px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:8px;line-height:1.6}
+.actbar{margin-top:10px;position:sticky;top:-14px;z-index:2;background:var(--bg);padding:6px 0}
+.act{padding:12px}
+.rem{margin-top:10px;resize:vertical;min-height:42px;font-size:14px}
+.sec .hint{font-weight:500;text-transform:none;letter-spacing:0;color:var(--mut);font-size:11px;margin-left:6px}
+.sec.hl{color:var(--ok)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.grid.neg{margin-top:6px}
+.opt{padding:11px 6px;font-size:12.5px;line-height:1.25}
+.opt .need{font-size:11px}
+.when{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:10px;margin:8px 0}
+.chips.wrap{flex-wrap:wrap;overflow:visible}
+.histbox{margin-top:12px}.histbox summary{font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;cursor:pointer;padding:6px 0}
+/* laptop / desktop: call panel docks on the right, queue stays visible */
+@media(min-width:900px){
+  .overlay{justify-content:flex-end;align-items:stretch;background:transparent;pointer-events:none}
+  .overlay .sheet{pointer-events:auto}
+  main{margin-right:470px}
+  .sheet{max-width:460px;max-height:100vh;height:100vh;border-radius:0;box-shadow:-8px 0 30px rgba(0,0,0,.12)}
+  main{margin-left:max(12px,calc(50vw - 690px))}
+}
 .modecard{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);padding:14px;margin-bottom:10px}
 .modecard b{display:block;font-size:17px;margin-bottom:4px}.modecard span{font-size:13px;color:var(--mut)}
 .modecard.on{border-color:var(--pri2);background:#eff6ff}
@@ -371,27 +398,31 @@ function openLead(id,keepTimer){
 function closeSheet(){stopCountdown();if(typeof stopPoll==='function')stopPoll();$('ov').classList.add('hide');S.focus=false;if(S.view==='queue')renderQueue()}
 function renderLead(){
   const l=S.cur,s=C.session,inSession=S.focus&&s;
+  const facts=[l.JobRole,l.City,l.Experience,l.Education,l.Language,l.Source].filter(Boolean).map(esc).join(' · ');
   $('sheet').innerHTML=`
    ${inSession?`<div class="sessbar"><span id="sessTxt">${sessText()}</span>
       <span><button class="chip" onclick="switchMode()">${C.mode==='auto'?'Switch to manual':'Switch to auto'}</button> <button class="chip" onclick="endSession()">■ End</button></span></div>`:''}
-   <div style="display:flex;justify-content:space-between;align-items:start">
-     <div><h2>${esc(l.Name||'(no name)')}</h2><div class="sub" style="color:var(--mut)">${esc(l.Phone)} · ${esc([l.JobRole,l.City].filter(Boolean).join(' · '))}</div></div>
-     ${inSession?'':`<button class="chip" onclick="closeSheet()">✕</button>`}</div>
-   <div>${l.Quality?`<span class="pill ${l.Quality}">${l.Quality}</span>`:''}<span class="pill">${esc(l.Stage||'New')}</span><span class="pill">📞 ${l.Attempts||0} attempts</span>${l.Source?`<span class="pill">${esc(l.Source)}</span>`:''}${l.Language?`<span class="pill">🗣 ${esc(l.Language)}</span>`:''}${l.Experience?`<span class="pill">💼 ${esc(l.Experience)}</span>`:''}${l.Education?`<span class="pill">🎓 ${esc(l.Education)}</span>`:''}${l.ProfilePct?`<span class="pill">Profile ${esc(l.ProfilePct)}%</span>`:''}</div>
-   ${l.HomeLocation?`<div class="sub" style="margin-top:6px">🏠 From: ${esc(l.HomeLocation)}</div>`:''}
-   ${l.LastOutcome?`<div class="sub" style="margin-top:4px">↩ Last: ${esc(l.LastOutcome)}${l.LastCallAt?' · '+ago(l.LastCallAt):''}</div>`:''}
-   ${l.VisitDate?`<div class="sub" style="margin-top:6px">🏢 Interview: <b>${fmt(l.VisitDate)}</b></div>`:''}
-   ${l.JoinDate?`<div class="sub">🗓 Joining: <b>${fmtD(l.JoinDate)}</b></div>`:''}
-   ${l.Remarks?`<div class="sub" style="margin-top:4px">📝 ${esc(l.Remarks)}</div>`:''}
+   <div class="lhead">
+     <div style="min-width:0"><h2>${esc(l.Name||'(no name)')}</h2>
+       <div class="lphone">${esc(l.Phone)}</div></div>
+     <div class="ltags">${l.Quality?`<span class="pill ${l.Quality}">${l.Quality}</span>`:''}<span class="pill">${esc(l.Stage||'New')}</span><span class="pill">${l.Attempts||0} tries</span>
+       ${inSession?'':`<button class="chip xbtn" onclick="closeSheet()">✕</button>`}</div>
+   </div>
+   ${facts?`<div class="lfacts">${facts}${l.HomeLocation?` · 🏠 ${esc(l.HomeLocation)}`:''}${l.ProfilePct?` · ${esc(l.ProfilePct)}% profile`:''}</div>`:''}
+   ${(l.LastOutcome||l.VisitDate||l.JoinDate||l.Remarks)?`<div class="lnote">
+     ${l.LastOutcome?`<div>↩ Last: <b>${esc(l.LastOutcome)}</b>${l.LastCallAt?' · '+ago(l.LastCallAt):''}</div>`:''}
+     ${l.VisitDate?`<div>🏢 Interview: <b>${fmt(l.VisitDate)}</b></div>`:''}
+     ${l.JoinDate?`<div>🗓 Joining: <b>${fmtD(l.JoinDate)}</b></div>`:''}
+     ${l.Remarks?`<div>📝 ${esc(l.Remarks)}</div>`:''}</div>`:''}
    ${C.dialAt?`<div id="cstat" class="cstat">📞 Calling… <b id="ctimer">00:00</b> <span class="sub">– tag any time</span></div>`:''}
    <div id="dialHint" class="hide cstat ended">Dialer didn't open? Tap 📞 Call below.</div>
-   <div class="row" style="margin-top:10px">
-     ${isC2C()?`<a class="act call" href="#" onclick="event.preventDefault();c2cDial(S.cur)">📞 ${C.dialAt?'Redial':'Call'} <span style="font-size:11px;font-weight:500">via SlashRTC</span></a>`
+   <div class="row actbar">
+     ${isC2C()?`<a class="act call" href="#" onclick="event.preventDefault();c2cDial(S.cur)">📞 ${C.dialAt?'Redial':'Call'}</a>`
        :`<a class="act call" href="tel:${tPhone(l.Phone)}" onclick="C.dialAt=C.dialAt||Date.now();C.left=false;setTimeout(renderStatus,50)">📞 ${C.dialAt?'Redial':'Call'}</a>`}
      <a class="act wa" href="#" onclick="event.preventDefault();openTpl()">💬 WhatsApp</a>
    </div>
    <div id="dispo"></div>
-   <div class="sec">History</div><div id="hist"><div class="sub">Loading…</div></div>
+   <details class="histbox"><summary>History</summary><div id="hist"><div class="sub">Loading…</div></div></details>
    ${inSession?`<button class="chip" style="width:100%;padding:12px;margin-top:10px" onclick="skipLead()">Skip this lead →</button>`:''}`;
   renderDispo();
 }
@@ -402,44 +433,60 @@ function switchMode(){
   if(S.cur&&S.done[S.cur.LeadID]){const nx=nextInQueue();if(nx)openLead(nx.LeadID);else autoRefill(false)}  // already tagged → show next lead (no auto dial without a tap)
   else renderLead();
 }
+/* ---------- ONE-SCREEN TAGGING ----------
+   Not connected → 1 tap saves.  Connected (no date) → 1 tap saves.
+   Connected needing a date → tap outcome, then tap a quick time (saves) or pick a custom one. */
+function quickTimes(need){
+  const at=(dAdd,h,m)=>{const t=new Date();t.setDate(t.getDate()+dAdd);t.setHours(h,m||0,0,0);return t.getTime()};
+  const now=Date.now(),hr=new Date().getHours(),out=[];
+  if(need==='visit'){ if(hr<14)out.push(['Today 4 PM',at(0,16)]); out.push(['Tomorrow 11 AM',at(1,11)],['Tomorrow 3 PM',at(1,15)],['Day after 11 AM',at(2,11)]); }
+  if(need==='join'){ out.push(['Tomorrow',at(1,10)],['Day after',at(2,10)],['In 3 days',at(3,10)]);
+    const mon=new Date();mon.setDate(mon.getDate()+((8-mon.getDay())%7||7));mon.setHours(10,0,0,0);out.push(['Next Monday',mon.getTime()]); }
+  if(need==='next'){ out.push(['In 1 hr',now+3600e3],['In 3 hrs',now+3*3600e3]); if(hr<17)out.push(['Today 6 PM',at(0,18)]); out.push(['Tomorrow 11 AM',at(1,11)],['In 2 days',at(2,11)]); }
+  return out;
+}
 function renderDispo(){
-  const d=S.dispo,O=S.cfg.outcomes;
-  const opt=o=>`<button class="opt ${o.g||''} ${d.o===o.o?'on':''}" onclick="pickOutcome('${o.o.replace(/'/g,"\\'")}')">${esc(o.o)}</button>`;
-  let h=`<div class="sec">How did the call go?</div>
-   <div class="seg"><button class="c ${d.c===true?'on':''}" onclick="S.dispo={c:true,o:null};renderDispo()">✅ Connected</button>
-   <button class="n ${d.c===false?'on':''}" onclick="S.dispo={c:false,o:null};renderDispo()">❌ Not connected</button></div>`;
-  if(d.c===false){h+=`<div class="sub" style="color:var(--mut);margin-bottom:6px">One tap saves${S.focus&&C.mode==='auto'?' & dials next':''} · auto-retry is scheduled</div><div class="grid">${O.filter(o=>o.g==='nc').map(opt).join('')}</div>`}
-  if(d.c===true){
-    h+=`<div class="sec">👍 Positive</div><div class="grid">${O.filter(o=>o.c&&o.g==='pos').map(opt).join('')}</div>
-        <div class="sec">👎 Negative</div><div class="grid">${O.filter(o=>o.c&&o.g==='neg').map(opt).join('')}</div>`;
-    if(d.o){
-      const oc=O.find(x=>x.o===d.o);
-      if(oc.need==='visit'){const t=new Date();t.setDate(t.getDate()+1);t.setHours(11,0,0,0);h+=`<label>Interview date & time *</label><input type="datetime-local" id="dVisit" value="${localInput(t)}">`}
-      if(oc.need==='join'){const t=new Date();t.setDate(t.getDate()+2);h+=`<label>Joining date *</label><input type="date" id="dJoin" value="${ymd(t)}">`}
-      if(oc.need==='next'){const t=new Date(Date.now()+(oc.h||24)*3600e3);h+=`<label>Next follow-up</label><input type="datetime-local" id="dNext" value="${localInput(t)}">
-        <div class="chips" style="margin-top:6px">${[['1h',1],['3h',3],['Tomorrow',24],['2 days',48]].map(q=>`<button class="chip" onclick="$('dNext').value=localInput(Date.now()+${q[1]}*3600e3)">${q[0]}</button>`).join('')}</div>`}
-      h+=`<label>Remarks (optional)</label><textarea id="dRem" rows="2" placeholder="e.g. expects 15k, has bike"></textarea>
-          <button class="save" onclick="saveDispo()">💾 Save${S.focus?(C.mode==='auto'?' & dial next':' & continue'):''}</button>`;
-    }
-  }
+  const d=S.dispo,O=S.cfg.outcomes,auto=S.focus&&C.mode==='auto';
+  const opt=o=>`<button class="opt ${o.g||''} ${d.o===o.o?'on':''}" onclick="pickOutcome('${o.o.replace(/'/g,"\\'")}')">${esc(o.o)}${o.need&&o.need!=='afterVisit'?' <span class="need">🗓</span>':''}</button>`;
+  const oc=d.o&&O.find(x=>x.o===d.o);
+  let h=`<textarea id="dRem" rows="1" class="rem" placeholder="📝 Remark (optional) – type first, then tap result">${esc(d.rem||'')}</textarea>
+   <div class="sec ncsec">❌ Not connected <span class="hint">1 tap${auto?' · next call starts':''}</span></div>
+   <div class="grid3">${O.filter(o=>o.g==='nc').map(opt).join('')}</div>
+   <div class="sec ${d.c===true?'hl':''}">✅ Connected <span class="hint">1 tap · 🗓 = pick a time</span></div>
+   <div class="grid">${O.filter(o=>o.c&&o.g==='pos').map(opt).join('')}</div>
+   <div class="grid neg">${O.filter(o=>o.c&&o.g==='neg').map(opt).join('')}</div>`;
   $('dispo').innerHTML=h;
+  if(oc&&oc.need&&oc.need!=='afterVisit'){ // inline time picker right under the chosen button
+    const lbl=oc.need==='visit'?'Interview time':oc.need==='join'?'Joining date':'Call back';
+    const def=oc.need==='visit'?quickTimes('visit')[0][1]:oc.need==='join'?quickTimes('join')[0][1]:Date.now()+(oc.h||24)*3600e3;
+    const btn=[...$('dispo').querySelectorAll('.opt.on')][0];
+    const box=document.createElement('div');box.className='when';
+    box.innerHTML=`<div class="sub"><b>${esc(oc.o)}</b> – ${lbl}: tap to save</div>
+      <div class="chips wrap">${quickTimes(oc.need).map(q=>`<button class="chip on" onclick="saveWhen(${q[1]})">${q[0]}</button>`).join('')}</div>
+      <div class="row" style="align-items:center;margin-top:6px">${oc.need==='join'?`<input type="date" id="dJoin" value="${ymd(def)}">`:`<input type="datetime-local" id="${oc.need==='visit'?'dVisit':'dNext'}" value="${localInput(def)}">`}
+      <button class="chip" style="flex:0 0 auto;padding:11px 14px;background:var(--pri);color:#fff;border:0" onclick="saveDispo()">Save</button></div>`;
+    (btn&&btn.parentNode?btn.parentNode:$('dispo')).insertAdjacentElement('afterend',box);
+  }
 }
 function pickOutcome(o){
-  S.dispo.o=o;const oc=S.cfg.outcomes.find(x=>x.o===o);
-  if(!oc.c)return saveDispo();renderDispo();
+  const rem=$('dRem');S.dispo.rem=rem?rem.value:'';
+  S.dispo.o=o;S.dispo.when=null;const oc=S.cfg.outcomes.find(x=>x.o===o);S.dispo.c=!!oc.c;
+  if(!oc.need||oc.need==='afterVisit')return saveDispo();   // 1 tap
+  renderDispo();
 }
+function saveWhen(ms){S.dispo.when=ms;saveDispo()}
 
-/* Save = instant on screen; the server write runs in a background queue (survives bad network). */
 function saveDispo(){
   const l=S.cur,d=S.dispo,oc=S.cfg.outcomes.find(x=>x.o===d.o);if(!oc)return;
   const v=id=>$(id)&&$(id).value;
   const talk=C.talk+(C.hiddenAt?Date.now()-C.hiddenAt:0);
   if(isC2C()&&T.lastRes&&T.lastRes.disposition&&T.lastRes.auto)return toast('Already auto-tagged: '+T.lastRes.disposition);
-  const p={leadId:l.LeadID,outcome:d.o,remarks:v('dRem')||'',at:Date.now(),ref:l.LeadID+'-'+Date.now(),callRef:(isC2C()&&T.ref)||'',
+  const p={leadId:l.LeadID,outcome:d.o,remarks:(v('dRem')||d.rem||'').trim(),at:Date.now(),ref:l.LeadID+'-'+Date.now(),callRef:(isC2C()&&T.ref)||'',
     secs:talk?Math.min(3600,Math.round(talk/1000)):(C.dialAt?Math.min(3600,Math.round((Date.now()-C.dialAt)/1000)):'')};
   if(v('dVisit'))p.visitAt=new Date(v('dVisit')).getTime();
   if(v('dJoin'))p.joinAt=new Date(v('dJoin')+'T10:00').getTime();
   if(v('dNext'))p.nextAt=new Date(v('dNext')).getTime();
+  if(d.when){ if(oc.need==='visit')p.visitAt=d.when; else if(oc.need==='join')p.joinAt=d.when; else if(oc.need==='next')p.nextAt=d.when; }
   if(oc.need==='visit'&&!p.visitAt)return toast('Select interview date & time',true);
   if(oc.need==='join'&&!p.joinAt)return toast('Select joining date',true);
   // optimistic local update
@@ -463,7 +510,9 @@ function afterSave(l,oc){
   const tpl=oc.tpl&&S.cfg.templates.find(t=>t.key===oc.tpl);
   const nx=nextInQueue();
   const waBtn=tpl?`<a class="act wa" style="margin-top:10px" href="${waLink(l,tpl.key)}" target="_blank" onclick="logWA('${tpl.key}','${l.LeadID}');pauseCountdown(false)">💬 Send "${esc(tpl.title)}"</a>`:'';
-  if(!S.focus){$('dispo').innerHTML=`<div class="done"><div style="font-size:30px">✅</div><b>${esc(oc.o)}</b>${waBtn}<button class="save" style="background:var(--pri2)" onclick="closeSheet()">Done</button></div>`;return}
+  if(!S.focus){
+    if(!tpl){toast('✅ Saved: '+oc.o);setTimeout(()=>{if(S.cur===l&&!S.focus)closeSheet()},700);return} // nothing else to do → close by itself
+    $('dispo').innerHTML=`<div class="done"><div style="font-size:30px">✅</div><b>${esc(oc.o)}</b>${waBtn}<button class="save" style="background:var(--pri2)" onclick="closeSheet()">Done</button></div>`;return}
   const nextInfo=nx?`<div class="sub" style="margin-top:8px">Next: <b>${esc(nx.Name||nx.Phone)}</b> · ${esc([nx.JobRole,nx.City].filter(Boolean).join(' · '))}${nx.bucket==='Due'?' · ⏰ follow-up':nx.bucket==='New'?' · 🆕':''}</div>`:'<div class="sub" style="margin-top:8px">Queue finished – will fetch more leads</div>';
   $('dispo').innerHTML=`<div class="done"><div style="font-size:28px">✅</div><b>${esc(oc.o)}</b>${nextInfo}
     ${C.mode==='auto'&&nx?`<div class="cd" id="cdBox">Dialing next in <b id="cdN">${S.cfg.settings.AutoDialDelaySec||3}</b>s</div>`:''}
