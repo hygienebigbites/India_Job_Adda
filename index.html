@@ -289,7 +289,9 @@ function c2cDial(l){
   S.cur=l;S.dispo={c:null,o:null};C.dialAt=Date.now();C.talk=0;C.left=false;C.hiddenAt=0;T.ref=null;T.lastRes=null;
   openLead(l.LeadID,true);
   setCstat('📲 Connecting via SlashRTC… <b>your phone will ring first – pick up</b>','');
-  google.script.run.withSuccessHandler(r=>{ if(S.cur!==l)return; T.ref=r.ref;T.startedAt=Date.now();startPoll(l) })
+  google.script.run.withSuccessHandler(r=>{ if(S.cur!==l)return; T.ref=r.ref;T.startedAt=Date.now();
+      if(S.cfg.telStatus==='none'){setCstat('📲 SlashRTC is calling <b>your phone</b> – pick up to connect. <span class="sub">When the call ends, tag the result below.</span> <b id="ctimer">00:00</b>','');return}
+      startPoll(l) })
     .withFailureHandler(e=>{ if(S.cur!==l)return; C.dialAt=0;
       setCstat('❌ Call could not start: '+esc((e&&e.message)||'error')+`<br><a href="tel:${tPhone(l.Phone)}" style="color:inherit">Use phone dialer instead</a>`,'ended') })
     .startCall(S.auth,l.LeadID);
